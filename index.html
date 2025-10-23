@@ -145,10 +145,17 @@
             </div>
 
             <div class="mt-8 p-4 bg-blue-50 rounded-lg">
-                <p class="text-sm text-blue-800">
-                    <strong>macOS Users:</strong> You may need to grant accessibility permissions for global shortcuts to work.
-                    CopyGum will guide you through this process on first launch.
+                <p class="text-sm text-blue-800 mb-3">
+                    <strong>📥 Installation Steps:</strong>
                 </p>
+                <ol class="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                    <li>Download and <strong>right-click</strong> the DMG file → select "Open"</li>
+                    <li>If you see "damaged" error, open Terminal and run: <code class="bg-blue-100 px-1 rounded">xattr -cr ~/Downloads/CopyGum*.dmg</code></li>
+                    <li>Drag CopyGum to Applications folder</li>
+                    <li><strong>Right-click</strong> CopyGum in Applications → "Open" → "Open" in dialog</li>
+                    <li>Grant accessibility permissions when prompted</li>
+                    <li>Enter your license key and enjoy! 🎉</li>
+                </ol>
             </div>
         </div>
     </section>
