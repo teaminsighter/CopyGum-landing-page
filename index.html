@@ -129,9 +129,9 @@
     <section id="download" class="py-20 bg-white">
         <div class="max-w-4xl mx-auto px-4 text-center">
             <h2 class="text-3xl font-bold mb-4">Download CopyGum</h2>
-            <p class="text-gray-600 mb-8">Available for macOS (Windows & Linux coming soon)</p>
+            <p class="text-gray-600 mb-8">Available for macOS and Windows</p>
             
-            <div class="grid md:grid-cols-2 gap-6 max-w-xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-6 max-w-2xl mx-auto">
                 <a href="https://github.com/teaminsighter/CopyGum/releases/download/v1.0.0/CopyGum-1.0.0.dmg" class="block bg-gray-100 hover:bg-gray-200 rounded-lg p-6 transition-colors">
                     <div class="text-3xl mb-2">🍎</div>
                     <div class="font-semibold">macOS Intel</div>
@@ -142,20 +142,40 @@
                     <div class="font-semibold">macOS Apple Silicon</div>
                     <div class="text-sm text-gray-500">M1/M2/M3 Macs (88 MB)</div>
                 </a>
+                <a href="https://github.com/teaminsighter/CopyGum/releases/download/v1.0.0/CopyGum%20Setup%201.0.0.exe" class="block bg-gray-100 hover:bg-gray-200 rounded-lg p-6 transition-colors">
+                    <div class="text-3xl mb-2">🪟</div>
+                    <div class="font-semibold">Windows</div>
+                    <div class="text-sm text-gray-500">Windows 10+ (137 MB)</div>
+                </a>
             </div>
 
             <div class="mt-8 p-4 bg-blue-50 rounded-lg">
                 <p class="text-sm text-blue-800 mb-3">
                     <strong>📥 Installation Steps:</strong>
                 </p>
-                <ol class="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-                    <li>Download and <strong>right-click</strong> the DMG file → select "Open"</li>
-                    <li>If you see "damaged" error, open Terminal and run: <code class="bg-blue-100 px-1 rounded">xattr -cr ~/Downloads/CopyGum*.dmg</code></li>
-                    <li>Drag CopyGum to Applications folder</li>
-                    <li><strong>Right-click</strong> CopyGum in Applications → "Open" → "Open" in dialog</li>
-                    <li>Grant accessibility permissions when prompted</li>
-                    <li>Enter your license key and enjoy! 🎉</li>
-                </ol>
+                
+                <div class="mb-4">
+                    <p class="text-sm text-blue-800 font-semibold mb-2">🍎 macOS:</p>
+                    <ol class="text-sm text-blue-800 space-y-1 list-decimal list-inside ml-4">
+                        <li>Download and <strong>right-click</strong> the DMG file → select "Open"</li>
+                        <li>If you see "damaged" error, open Terminal and run: <code class="bg-blue-100 px-1 rounded">xattr -cr ~/Downloads/CopyGum*.dmg</code></li>
+                        <li>Drag CopyGum to Applications folder</li>
+                        <li><strong>Right-click</strong> CopyGum in Applications → "Open" → "Open" in dialog</li>
+                        <li>Grant accessibility permissions when prompted</li>
+                        <li>Enter your license key and enjoy! 🎉</li>
+                    </ol>
+                </div>
+                
+                <div>
+                    <p class="text-sm text-blue-800 font-semibold mb-2">🪟 Windows:</p>
+                    <ol class="text-sm text-blue-800 space-y-1 list-decimal list-inside ml-4">
+                        <li>Download and double-click <code class="bg-blue-100 px-1 rounded">CopyGum Setup 1.0.0.exe</code></li>
+                        <li>Click "Yes" if Windows asks for admin permission</li>
+                        <li>Follow the installer wizard</li>
+                        <li>Launch CopyGum from Start Menu or Desktop</li>
+                        <li>Enter your license key and enjoy! 🎉</li>
+                    </ol>
+                </div>
             </div>
         </div>
     </section>
