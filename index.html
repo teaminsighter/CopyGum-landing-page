@@ -138,35 +138,32 @@
                     <div class="text-sm text-gray-500">Apple Silicon (M1/M2/M3) - 8.7 MB</div>
                 </a>
             </div>
-            <p class="text-gray-500 text-sm mt-4">Intel Mac and Windows versions coming soon</p>
-
-            <div class="mt-8 p-4 bg-blue-50 rounded-lg">
-                <p class="text-sm text-blue-800 mb-3">
-                    <strong>📥 Installation Steps:</strong>
+            <div class="mt-8 p-4 bg-blue-50 rounded-lg text-left">
+                <p class="text-sm text-blue-800 mb-4 text-center">
+                    <strong>📥 Installation Steps for macOS:</strong>
                 </p>
-                
-                <div class="mb-4">
-                    <p class="text-sm text-blue-800 font-semibold mb-2">🍎 macOS:</p>
-                    <ol class="text-sm text-blue-800 space-y-1 list-decimal list-inside ml-4">
-                        <li>Download and <strong>right-click</strong> the DMG file → select "Open"</li>
-                        <li>If you see "damaged" error, open Terminal and run: <code class="bg-blue-100 px-1 rounded">xattr -cr ~/Downloads/CopyGum*.dmg</code></li>
-                        <li>Drag CopyGum to Applications folder</li>
-                        <li><strong>Right-click</strong> CopyGum in Applications → "Open" → "Open" in dialog</li>
-                        <li>Grant accessibility permissions when prompted</li>
-                        <li>Enter your license key and enjoy! 🎉</li>
-                    </ol>
-                </div>
-                
-                <div>
-                    <p class="text-sm text-blue-800 font-semibold mb-2">🪟 Windows:</p>
-                    <ol class="text-sm text-blue-800 space-y-1 list-decimal list-inside ml-4">
-                        <li>Download and double-click <code class="bg-blue-100 px-1 rounded">CopyGum.Setup.1.0.0.exe</code></li>
-                        <li>Click "Yes" if Windows asks for admin permission</li>
-                        <li>Follow the installer wizard</li>
-                        <li>Launch CopyGum from Start Menu or Desktop</li>
-                        <li>Enter your license key and enjoy! 🎉</li>
-                    </ol>
-                </div>
+
+                <ol class="text-sm text-blue-800 space-y-3 list-decimal list-inside ml-4">
+                    <li>Download the DMG file above</li>
+                    <li>Open <strong>Terminal</strong> and run this command to remove the quarantine flag:
+                        <div class="mt-1 mb-1 bg-gray-900 text-green-400 p-3 rounded-lg font-mono text-xs overflow-x-auto flex items-center justify-between">
+                            <code>xattr -cr ~/Downloads/CopyGum_1.0.0_aarch64.dmg</code>
+                            <button onclick="copyToClipboard('xattr -cr ~/Downloads/CopyGum_1.0.0_aarch64.dmg', this)" class="ml-3 text-gray-400 hover:text-white flex-shrink-0 text-xs">📋 Copy</button>
+                        </div>
+                    </li>
+                    <li>Open the DMG by running:
+                        <div class="mt-1 mb-1 bg-gray-900 text-green-400 p-3 rounded-lg font-mono text-xs overflow-x-auto flex items-center justify-between">
+                            <code>open ~/Downloads/CopyGum_1.0.0_aarch64.dmg</code>
+                            <button onclick="copyToClipboard('open ~/Downloads/CopyGum_1.0.0_aarch64.dmg', this)" class="ml-3 text-gray-400 hover:text-white flex-shrink-0 text-xs">📋 Copy</button>
+                        </div>
+                    </li>
+                    <li>Drag <strong>CopyGum</strong> to your <strong>Applications</strong> folder from the mounted DMG</li>
+                    <li>If macOS blocks the app, go to <strong>System Settings → Privacy & Security</strong> and click <strong>"Open Anyway"</strong></li>
+                    <li>Grant <strong>Accessibility</strong> permissions at <strong>System Settings → Privacy & Security → Accessibility</strong></li>
+                    <li>Press <strong>Cmd+Shift+V</strong> to open the overlay and enjoy! 🎉</li>
+                </ol>
+
+                <p class="text-xs text-blue-600 mt-4 text-center">Intel Mac and Windows versions coming soon</p>
             </div>
         </div>
     </section>
@@ -254,6 +251,19 @@
                 console.error('License generation error:', error)
                 alert('Failed to generate license. Please try again.')
             }
+        }
+
+        // Copy terminal commands to clipboard
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.textContent
+                btn.textContent = '✓ Copied!'
+                btn.classList.add('text-green-400')
+                setTimeout(() => {
+                    btn.textContent = original
+                    btn.classList.remove('text-green-400')
+                }, 2000)
+            })
         }
 
         // Analytics tracking
