@@ -3,122 +3,558 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CopyGum - Smart Clipboard Manager</title>
+    <title>CopyGum - Smart Clipboard Manager for macOS</title>
+    <meta name="description" content="CopyGum intelligently captures, organizes, and recalls everything you copy. Built for developers and power users on macOS.">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#0a0a0a',
+                            gold: '#f7e479',
+                            'gold-hover': '#f5d94a',
+                            card: 'rgba(40, 40, 45, 0.9)',
+                            glass: 'rgba(255, 255, 255, 0.05)',
+                            'glass-border': 'rgba(255, 255, 255, 0.1)',
+                            muted: '#999999',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base */
+        html { scroll-behavior: smooth; }
+        body { background: #0a0a0a; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+        /* Glass morphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .glass-card {
+            background: rgba(40, 40, 45, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+        .navbar.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Gold glow background */
+        .gold-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(247, 228, 121, 0.08) 0%, transparent 70%);
+            animation: glowPulse 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.15); }
+        }
+
+        /* Gold text */
+        .gold-gradient {
+            background: linear-gradient(135deg, #f7e479 0%, #f5d94a 50%, #f7e479 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+        }
+        .gold-text-shadow {
+            text-shadow: 0 0 20px rgba(247, 228, 121, 0.3);
+        }
+
+        /* Gold border glow */
+        .gold-border-glow {
+            border: 1px solid rgba(247, 228, 121, 0.3);
+            box-shadow: 0 0 30px rgba(247, 228, 121, 0.08), inset 0 0 30px rgba(247, 228, 121, 0.03);
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Card hover */
+        .feature-card {
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(247, 228, 121, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(247, 228, 121, 0.06);
+        }
+
+        /* Hero screenshot */
+        .hero-screenshot {
+            transform: perspective(1000px) rotateY(-5deg);
+            transition: transform 0.4s ease;
+        }
+        .hero-screenshot:hover {
+            transform: perspective(1000px) rotateY(-2deg);
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .floating {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Terminal blink cursor */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .terminal-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+            color: #f7e479;
+        }
+
+        /* Keyboard key style */
+        .kbd {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 3px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-family: -apple-system, BlinkMacSystemFont, monospace;
+            font-size: 0.85em;
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+        .kbd:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Timeline connector */
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f7e479, transparent);
+            z-index: 0;
+        }
+
+        /* Step number */
+        .step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f7e479, #f5d94a);
+            color: #0a0a0a;
+            font-weight: 800;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Screenshot frame */
+        .screenshot-frame {
+            background: rgba(40, 40, 45, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Button styles */
+        .btn-gold {
+            background: #f7e479;
+            color: #0a0a0a;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 10px;
+            transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-gold:hover {
+            background: #f5d94a;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(247, 228, 121, 0.25);
+        }
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 10px;
+            transition: background 0.2s ease, border-color 0.2s ease;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1; transform: none; transition: none; }
+            .gold-glow { animation: none; }
+            .floating { animation: none; }
+            .terminal-cursor::after { animation: none; }
+            .hero-screenshot { transform: none; }
+            .feature-card:hover { transform: none; }
+            .navbar { transition: none; }
+            .kbd:hover { transform: none; }
+            .btn-gold:hover { transform: none; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+    </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <span class="text-white font-bold">📋</span>
-                </div>
-                <span class="text-xl font-bold text-gray-900">CopyGum</span>
+<body class="bg-brand-bg antialiased">
+
+    <!-- Sticky Navbar -->
+    <nav id="navbar" class="navbar fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-xl font-bold tracking-tight">
+                <span class="text-brand-gold">C</span>opy<span class="text-brand-gold">G</span>um
+            </a>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#features" class="text-sm text-gray-400 hover:text-white transition-colors">Features</a>
+                <a href="#how-it-works" class="text-sm text-gray-400 hover:text-white transition-colors">How It Works</a>
+                <a href="#pricing" class="text-sm text-gray-400 hover:text-white transition-colors">Pricing</a>
+                <a href="#download" class="text-sm text-gray-400 hover:text-white transition-colors">Download</a>
+                <a href="#download" class="btn-gold text-sm !py-2 !px-5">Get CopyGum</a>
             </div>
-            <nav class="hidden md:flex space-x-6">
-                <a href="#features" class="text-gray-600 hover:text-gray-900">Features</a>
-                <a href="#pricing" class="text-gray-600 hover:text-gray-900">Pricing</a>
-                <a href="#download" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Download</a>
-            </nav>
+            <!-- Mobile menu button -->
+            <button id="mobileMenuBtn" class="md:hidden text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
         </div>
-    </header>
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden px-4 pb-4">
+            <a href="#features" class="block py-2 text-sm text-gray-400 hover:text-white">Features</a>
+            <a href="#how-it-works" class="block py-2 text-sm text-gray-400 hover:text-white">How It Works</a>
+            <a href="#pricing" class="block py-2 text-sm text-gray-400 hover:text-white">Pricing</a>
+            <a href="#download" class="block py-2 text-sm text-gray-400 hover:text-white">Download</a>
+            <a href="#download" class="btn-gold text-sm !py-2 !px-5 mt-2 text-center block">Get CopyGum</a>
+        </div>
+    </nav>
 
     <!-- Hero Section -->
-    <section class="bg-gradient-to-br from-blue-600 to-purple-700 text-white py-20">
-        <div class="max-w-6xl mx-auto px-4 text-center">
-            <h1 class="text-5xl font-bold mb-6">
-                The Smart Clipboard Manager<br>You've Been Waiting For
-            </h1>
-            <p class="text-xl mb-8 text-blue-100">
-                Never lose your clipboard history again. CopyGum intelligently organizes, categorizes, and manages everything you copy - it sticks to your workflow!
-            </p>
-            <div class="flex justify-center space-x-4">
-                <a href="#download" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                    Start 7-Day Free Trial
-                </a>
-                <a href="#demo" class="border border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
-                    Watch Demo
-                </a>
+    <section id="hero" class="relative min-h-screen flex items-center overflow-hidden">
+        <!-- Gold glow effects -->
+        <div class="gold-glow" style="top: -200px; right: -200px;"></div>
+        <div class="gold-glow" style="bottom: -300px; left: -200px; animation-delay: 3s;"></div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-16 w-full">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <!-- Left: Text content -->
+                <div class="text-center lg:text-left">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+                        Your Clipboard,<br>
+                        <span class="gold-gradient">Supercharged</span>
+                    </h1>
+                    <p class="text-lg sm:text-xl text-gray-400 mb-8 max-w-lg mx-auto lg:mx-0">
+                        CopyGum intelligently captures, organizes, and recalls everything you copy. Built for developers and power users on macOS.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
+                        <a href="#download" class="btn-gold text-center">Download Now</a>
+                        <a href="#how-it-works" class="btn-glass text-center">See How It Works</a>
+                    </div>
+                    <div class="flex items-center justify-center lg:justify-start gap-2 text-gray-500 text-sm">
+                        <span>Open with</span>
+                        <span class="kbd">Cmd</span>
+                        <span>+</span>
+                        <span class="kbd">Shift</span>
+                        <span>+</span>
+                        <span class="kbd">V</span>
+                    </div>
+                </div>
+
+                <!-- Right: Screenshot -->
+                <div class="relative flex justify-center lg:justify-end" id="heroScreenshot">
+                    <div class="hero-screenshot screenshot-frame max-w-md lg:max-w-lg w-full">
+                        <img src="screenshot-overlay.png" alt="CopyGum overlay panel showing clipboard history" class="w-full rounded-lg" loading="lazy">
+                    </div>
+                </div>
             </div>
-            <p class="text-sm text-blue-200 mt-4">
-                No credit card required • Works on macOS
-            </p>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-600 animate-bounce hidden lg:block">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section id="features" class="py-20 bg-white">
-        <div class="max-w-6xl mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12">Why CopyGum?</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span class="text-2xl">🚀</span>
+    <section id="features" class="py-20 sm:py-28 relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Everything You Need</h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto">Powerful features designed to supercharge your clipboard workflow.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card 1: Smart Detection -->
+                <div class="glass-card feature-card rounded-2xl p-6 reveal" style="transition-delay: 0s;">
+                    <div class="w-12 h-12 rounded-xl bg-brand-glass flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2">Lightning Fast</h3>
-                    <p class="text-gray-600">Access your clipboard history instantly with global shortcuts. No delays, no waiting.</p>
+                    <h3 class="text-lg font-semibold mb-2">Smart Detection</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Auto-detects URLs, code snippets, emails, passwords, API keys, colors, and phone numbers.</p>
                 </div>
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span class="text-2xl">🎯</span>
+
+                <!-- Card 2: Instant Search -->
+                <div class="glass-card feature-card rounded-2xl p-6 reveal" style="transition-delay: 0.1s;">
+                    <div class="w-12 h-12 rounded-xl bg-brand-glass flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2">Smart Categories</h3>
-                    <p class="text-gray-600">Automatically categorizes URLs, code, colors, passwords, and more. Find what you need quickly.</p>
+                    <h3 class="text-lg font-semibold mb-2">Instant Search</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Find any clip instantly with real-time search across content, app names, and categories.</p>
                 </div>
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span class="text-2xl">🔒</span>
+
+                <!-- Card 3: Image Support -->
+                <div class="glass-card feature-card rounded-2xl p-6 reveal" style="transition-delay: 0.2s;">
+                    <div class="w-12 h-12 rounded-xl bg-brand-glass flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2">Privacy First</h3>
-                    <p class="text-gray-600">Your data stays on your device. No cloud syncing, no data collection, completely private.</p>
+                    <h3 class="text-lg font-semibold mb-2">Image Support</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Captures screenshots and images with thumbnails, dimensions, and dominant color detection.</p>
+                </div>
+
+                <!-- Card 4: Category Filters -->
+                <div class="glass-card feature-card rounded-2xl p-6 reveal" style="transition-delay: 0.3s;">
+                    <div class="w-12 h-12 rounded-xl bg-brand-glass flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Category Filters</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">One-click capsule filters: All, Text, Links, Code, Images, Passwords, and more.</p>
+                </div>
+
+                <!-- Card 5: Pin & Organize -->
+                <div class="glass-card feature-card rounded-2xl p-6 reveal" style="transition-delay: 0.4s;">
+                    <div class="w-12 h-12 rounded-xl bg-brand-glass flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Pin & Organize</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Pin important clips, bulk select, and manage your clipboard history effortlessly.</p>
+                </div>
+
+                <!-- Card 6: Privacy First -->
+                <div class="glass-card feature-card rounded-2xl p-6 reveal" style="transition-delay: 0.5s;">
+                    <div class="w-12 h-12 rounded-xl bg-brand-glass flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Privacy First</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">All data stays local on your Mac. No cloud, no tracking, no data collection.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="py-20 sm:py-28 relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">How It Works</h2>
+                <p class="text-gray-400 text-lg">Three simple steps to clipboard nirvana.</p>
+            </div>
+
+            <!-- Timeline -->
+            <div class="relative mb-16">
+                <!-- Horizontal line (hidden on mobile) -->
+                <div class="timeline-line hidden lg:block"></div>
+
+                <div class="grid lg:grid-cols-3 gap-8 lg:gap-12">
+                    <!-- Step 1 -->
+                    <div class="text-center reveal" style="transition-delay: 0s;">
+                        <div class="flex justify-center mb-5">
+                            <div class="step-number">1</div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-6">
+                            <div class="w-10 h-10 rounded-lg bg-brand-glass flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-5 h-5 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">Copy Anything</h3>
+                            <p class="text-gray-400 text-sm">Just use your Mac normally. CopyGum captures everything in the background.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="text-center reveal" style="transition-delay: 0.15s;">
+                        <div class="flex justify-center mb-5">
+                            <div class="step-number">2</div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-6">
+                            <div class="w-10 h-10 rounded-lg bg-brand-glass flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-5 h-5 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">Auto-Categorize</h3>
+                            <p class="text-gray-400 text-sm">Content is instantly detected and sorted into smart categories.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="text-center reveal" style="transition-delay: 0.3s;">
+                        <div class="flex justify-center mb-5">
+                            <div class="step-number">3</div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-6">
+                            <div class="w-10 h-10 rounded-lg bg-brand-glass flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-5 h-5 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">Recall Instantly</h3>
+                            <p class="text-gray-400 text-sm">Press <span class="kbd text-xs">Cmd</span>+<span class="kbd text-xs">Shift</span>+<span class="kbd text-xs">V</span> to open the overlay. Search, filter, paste.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- App screenshot -->
+            <div class="reveal flex justify-center">
+                <div class="screenshot-frame max-w-2xl w-full">
+                    <img src="screenshot-app.png" alt="CopyGum categorized view showing smart content detection" class="w-full rounded-lg" loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- App Showcase -->
+    <section class="py-20 sm:py-28 relative overflow-hidden">
+        <div class="gold-glow" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Beautiful & Powerful</h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto">A sleek overlay panel that appears instantly when you need it and disappears when you don't.</p>
+            </div>
+
+            <div class="reveal flex justify-center">
+                <div class="floating screenshot-frame max-w-3xl w-full">
+                    <img src="screenshot-preview.png" alt="CopyGum full preview showing the overlay panel interface" class="w-full rounded-lg" loading="lazy">
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Pricing Section -->
-    <section id="pricing" class="py-20 bg-gray-50">
-        <div class="max-w-4xl mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-4">Get Your Free License</h2>
-            <p class="text-gray-600 text-center mb-12">Free 1-year licenses available! Just enter your email to get started.</p>
-            
-            <div class="max-w-md mx-auto">
-                <div class="bg-white rounded-lg shadow-lg p-8 border-2 border-green-500 relative">
-                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                        100% Free
+    <section id="pricing" class="py-20 sm:py-28 relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Simple Pricing</h2>
+                <p class="text-gray-400 text-lg">One plan. Everything included. No surprises.</p>
+            </div>
+
+            <!-- Pricing card -->
+            <div class="max-w-md mx-auto reveal">
+                <div class="glass-card gold-border-glow rounded-2xl p-8 text-center relative">
+                    <!-- Badge -->
+                    <div class="inline-block px-4 py-1 rounded-full text-xs font-semibold mb-6" style="background: rgba(247, 228, 121, 0.15); color: #f7e479;">
+                        Simple Pricing
                     </div>
-                    <h3 class="text-xl font-semibold mb-2">Free 1-Year License</h3>
-                    <div class="text-3xl font-bold mb-4">$0<span class="text-lg text-gray-500">/year</span></div>
-                    <ul class="space-y-3 mb-8">
-                        <li class="flex items-center"><span class="text-green-500 mr-2">✓</span>Unlimited clipboard storage</li>
-                        <li class="flex items-center"><span class="text-green-500 mr-2">✓</span>Smart categorization</li>
-                        <li class="flex items-center"><span class="text-green-500 mr-2">✓</span>Global shortcuts</li>
-                        <li class="flex items-center"><span class="text-green-500 mr-2">✓</span>Privacy-first design</li>
+
+                    <!-- Price -->
+                    <div class="mb-6">
+                        <span class="text-5xl font-bold gold-gradient">$3</span>
+                        <span class="text-gray-400 text-lg">/month</span>
+                    </div>
+
+                    <!-- Features -->
+                    <ul class="text-left space-y-3 mb-8">
+                        <li class="flex items-center gap-3 text-sm text-gray-300">
+                            <svg class="w-5 h-5 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Unlimited clipboard history
+                        </li>
+                        <li class="flex items-center gap-3 text-sm text-gray-300">
+                            <svg class="w-5 h-5 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Smart content detection (10+ types)
+                        </li>
+                        <li class="flex items-center gap-3 text-sm text-gray-300">
+                            <svg class="w-5 h-5 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Image & screenshot capture
+                        </li>
+                        <li class="flex items-center gap-3 text-sm text-gray-300">
+                            <svg class="w-5 h-5 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Real-time search & filters
+                        </li>
+                        <li class="flex items-center gap-3 text-sm text-gray-300">
+                            <svg class="w-5 h-5 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Pin & organize clips
+                        </li>
+                        <li class="flex items-center gap-3 text-sm text-gray-300">
+                            <svg class="w-5 h-5 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Privacy-first, 100% local
+                        </li>
+                        <li class="flex items-center gap-3 text-sm text-gray-300">
+                            <svg class="w-5 h-5 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Free updates
+                        </li>
                     </ul>
-                    <button onclick="showEmailForm()" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
-                        Get Free License
-                    </button>
+
+                    <!-- CTA -->
+                    <button onclick="showLicenseForm()" class="btn-gold w-full text-center cursor-pointer">Start 7-Day Free Trial</button>
+                    <p class="text-gray-500 text-xs mt-3">No credit card required</p>
                 </div>
             </div>
 
-            <!-- Email License Form -->
-            <div id="emailForm" class="hidden mt-8 max-w-md mx-auto">
-                <div class="bg-white rounded-lg shadow-lg p-6 border">
-                    <h3 class="text-lg font-semibold mb-4 text-center">Get Your Free License</h3>
+            <!-- License Form (hidden by default) -->
+            <div id="licenseForm" class="hidden mt-8 max-w-md mx-auto reveal">
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-center">Get Your License Key</h3>
                     <div class="space-y-4">
-                        <input type="email" id="emailInput" placeholder="Enter your email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button onclick="generateLicense()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                            Generate License Key
-                        </button>
-                        <button onclick="hideEmailForm()" class="w-full bg-gray-300 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-400 transition-colors">
-                            Cancel
-                        </button>
+                        <input type="email" id="emailInput" placeholder="Enter your email" class="w-full px-4 py-3 rounded-xl bg-brand-glass border border-brand-glass-border text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold transition-colors">
+                        <button onclick="generateLicense()" id="generateBtn" class="btn-gold w-full text-center cursor-pointer">Generate License Key</button>
+                        <button onclick="hideLicenseForm()" class="w-full py-3 rounded-xl text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Cancel</button>
                     </div>
-                    <div id="licenseResult" class="hidden mt-4 p-4 bg-green-50 rounded-lg">
-                        <p class="text-green-800 font-semibold">Your License Key:</p>
-                        <p id="licenseKey" class="font-mono text-sm bg-white p-2 rounded border mt-2"></p>
-                        <p class="text-sm text-green-600 mt-2">Save this key! You'll need it to activate CopyGum.</p>
+                    <!-- License result -->
+                    <div id="licenseResult" class="hidden mt-4 p-4 rounded-xl" style="background: rgba(247, 228, 121, 0.08); border: 1px solid rgba(247, 228, 121, 0.2);">
+                        <p class="text-brand-gold font-semibold text-sm mb-2">Your License Key:</p>
+                        <div class="flex items-center gap-2">
+                            <p id="licenseKey" class="font-mono text-sm bg-brand-glass p-3 rounded-lg border border-brand-glass-border flex-1 break-all"></p>
+                            <button onclick="copyLicenseKey()" class="text-gray-400 hover:text-brand-gold transition-colors flex-shrink-0 p-2" title="Copy license key">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">Save this key! You'll need it to activate CopyGum.</p>
                     </div>
                 </div>
             </div>
@@ -126,166 +562,277 @@
     </section>
 
     <!-- Download Section -->
-    <section id="download" class="py-20 bg-white">
-        <div class="max-w-4xl mx-auto px-4 text-center">
-            <h2 class="text-3xl font-bold mb-4">Download CopyGum</h2>
-            <p class="text-gray-600 mb-8">Available for macOS</p>
-            
-            <div class="flex justify-center">
-                <a href="https://github.com/teaminsighter/copy-gum-new/releases/download/v1.0.0/CopyGum_1.0.0_aarch64.dmg" class="block bg-gray-100 hover:bg-gray-200 rounded-lg p-6 transition-colors">
-                    <div class="text-3xl mb-2">🍎</div>
-                    <div class="font-semibold">Download for macOS</div>
-                    <div class="text-sm text-gray-500">Apple Silicon (M1/M2/M3) - 8.7 MB</div>
-                </a>
+    <section id="download" class="py-20 sm:py-28 relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Download CopyGum</h2>
+                <p class="text-gray-400 text-lg">Get started in under a minute.</p>
             </div>
-            <div class="mt-8 p-4 bg-blue-50 rounded-lg text-left">
-                <p class="text-sm text-blue-800 mb-4 text-center">
-                    <strong>📥 Installation Steps for macOS:</strong>
-                </p>
 
-                <ol class="text-sm text-blue-800 space-y-3 list-decimal list-inside ml-4">
-                    <li>Download the DMG file above</li>
-                    <li>Open <strong>Terminal</strong> and run this command to remove the quarantine flag:
-                        <div class="mt-1 mb-1 bg-gray-900 text-green-400 p-3 rounded-lg font-mono text-xs overflow-x-auto flex items-center justify-between">
-                            <code>xattr -cr ~/Downloads/CopyGum_1.0.0_aarch64.dmg</code>
-                            <button onclick="copyToClipboard('xattr -cr ~/Downloads/CopyGum_1.0.0_aarch64.dmg', this)" class="ml-3 text-gray-400 hover:text-white flex-shrink-0 text-xs">📋 Copy</button>
-                        </div>
-                    </li>
-                    <li>Open the DMG by running:
-                        <div class="mt-1 mb-1 bg-gray-900 text-green-400 p-3 rounded-lg font-mono text-xs overflow-x-auto flex items-center justify-between">
-                            <code>open ~/Downloads/CopyGum_1.0.0_aarch64.dmg</code>
-                            <button onclick="copyToClipboard('open ~/Downloads/CopyGum_1.0.0_aarch64.dmg', this)" class="ml-3 text-gray-400 hover:text-white flex-shrink-0 text-xs">📋 Copy</button>
-                        </div>
-                    </li>
-                    <li>Drag <strong>CopyGum</strong> to your <strong>Applications</strong> folder from the mounted DMG</li>
-                    <li>If macOS blocks the app, go to <strong>System Settings → Privacy & Security</strong> and click <strong>"Open Anyway"</strong></li>
-                    <li>Grant <strong>Accessibility</strong> permissions at <strong>System Settings → Privacy & Security → Accessibility</strong></li>
-                    <li>Press <strong>Cmd+Shift+V</strong> to open the overlay and enjoy! 🎉</li>
-                </ol>
+            <div class="max-w-2xl mx-auto">
+                <!-- macOS Download Card -->
+                <div class="glass-card rounded-2xl p-8 text-center mb-8 reveal">
+                    <div class="w-16 h-16 rounded-2xl bg-brand-glass flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-1">macOS</h3>
+                    <p class="text-gray-400 text-sm mb-5">Apple Silicon (M1/M2/M3/M4)</p>
+                    <a href="https://github.com/teaminsighter/copy-gum-new/releases/download/v1.0.0/CopyGum_1.0.0_aarch64.dmg" class="btn-gold inline-block">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Download DMG
+                        </span>
+                    </a>
+                    <p class="text-gray-500 text-xs mt-3">Intel Mac & Windows coming soon</p>
+                </div>
 
-                <p class="text-xs text-blue-600 mt-4 text-center">Intel Mac and Windows versions coming soon</p>
+                <!-- Installation steps (terminal style) -->
+                <div class="reveal">
+                    <div class="rounded-2xl overflow-hidden" style="background: rgba(20, 20, 25, 0.95); border: 1px solid rgba(255,255,255,0.08);">
+                        <!-- Terminal header -->
+                        <div class="flex items-center gap-2 px-4 py-3 border-b border-white/5">
+                            <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                            <span class="text-xs text-gray-500 ml-2 terminal-cursor">Installation Steps</span>
+                        </div>
+
+                        <!-- Steps -->
+                        <div class="p-5 space-y-4 text-sm">
+                            <div class="flex gap-3">
+                                <span class="text-brand-gold font-mono font-bold shrink-0">1.</span>
+                                <span class="text-gray-300">Download the DMG file above</span>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <span class="text-brand-gold font-mono font-bold shrink-0">2.</span>
+                                <div class="flex-1">
+                                    <span class="text-gray-300">Remove the quarantine flag:</span>
+                                    <div class="mt-2 flex items-center gap-2 bg-black/40 rounded-lg px-4 py-2.5">
+                                        <code class="text-green-400 font-mono text-xs flex-1 overflow-x-auto">xattr -cr ~/Downloads/CopyGum_1.0.0_aarch64.dmg</code>
+                                        <button onclick="copyToClipboard('xattr -cr ~/Downloads/CopyGum_1.0.0_aarch64.dmg', this)" class="text-gray-500 hover:text-brand-gold transition-colors flex-shrink-0 copy-btn" title="Copy">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <span class="text-brand-gold font-mono font-bold shrink-0">3.</span>
+                                <div class="flex-1">
+                                    <span class="text-gray-300">Open the DMG:</span>
+                                    <div class="mt-2 flex items-center gap-2 bg-black/40 rounded-lg px-4 py-2.5">
+                                        <code class="text-green-400 font-mono text-xs flex-1 overflow-x-auto">open ~/Downloads/CopyGum_1.0.0_aarch64.dmg</code>
+                                        <button onclick="copyToClipboard('open ~/Downloads/CopyGum_1.0.0_aarch64.dmg', this)" class="text-gray-500 hover:text-brand-gold transition-colors flex-shrink-0 copy-btn" title="Copy">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <span class="text-brand-gold font-mono font-bold shrink-0">4.</span>
+                                <span class="text-gray-300">Drag <span class="text-white font-medium">CopyGum</span> to your <span class="text-white font-medium">Applications</span> folder</span>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <span class="text-brand-gold font-mono font-bold shrink-0">5.</span>
+                                <span class="text-gray-300">Grant <span class="text-white font-medium">Accessibility</span> permissions in <span class="text-white font-medium">System Settings &rarr; Privacy & Security</span></span>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <span class="text-brand-gold font-mono font-bold shrink-0">6.</span>
+                                <span class="text-gray-300">Press <span class="kbd text-xs">Cmd</span>+<span class="kbd text-xs">Shift</span>+<span class="kbd text-xs">V</span> to launch!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="grid md:grid-cols-4 gap-8">
+    <footer class="relative pt-16 pb-12">
+        <!-- Gold accent line -->
+        <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent, #f7e479, transparent);"></div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                <!-- Brand -->
                 <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                            <span class="text-white font-bold">📋</span>
-                        </div>
-                        <span class="text-xl font-bold">CopyGum</span>
+                    <div class="text-xl font-bold tracking-tight mb-3">
+                        <span class="text-brand-gold">C</span>opy<span class="text-brand-gold">G</span>um
                     </div>
-                    <p class="text-gray-400">The smart clipboard manager that sticks to your workflow.</p>
+                    <p class="text-gray-500 text-sm">The smart clipboard manager that sticks to your workflow.</p>
                 </div>
+
+                <!-- Product -->
                 <div>
-                    <h3 class="font-semibold mb-4">Product</h3>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#features" class="hover:text-white">Features</a></li>
-                        <li><a href="#pricing" class="hover:text-white">Pricing</a></li>
-                        <li><a href="#download" class="hover:text-white">Download</a></li>
+                    <h4 class="text-sm font-semibold mb-4 text-gray-300">Product</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#features" class="text-sm text-gray-500 hover:text-white transition-colors">Features</a></li>
+                        <li><a href="#pricing" class="text-sm text-gray-500 hover:text-white transition-colors">Pricing</a></li>
+                        <li><a href="#download" class="text-sm text-gray-500 hover:text-white transition-colors">Download</a></li>
                     </ul>
                 </div>
+
+                <!-- Support -->
                 <div>
-                    <h3 class="font-semibold mb-4">Support</h3>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="mailto:support@copygum.com" class="hover:text-white">Contact</a></li>
-                        <li><a href="/help" class="hover:text-white">Help Center</a></li>
-                        <li><a href="/refunds" class="hover:text-white">Refund Policy</a></li>
+                    <h4 class="text-sm font-semibold mb-4 text-gray-300">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="mailto:support@copygum.com" class="text-sm text-gray-500 hover:text-white transition-colors">Contact</a></li>
+                        <li><a href="/help" class="text-sm text-gray-500 hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="/refunds" class="text-sm text-gray-500 hover:text-white transition-colors">Refund Policy</a></li>
                     </ul>
                 </div>
+
+                <!-- Legal -->
                 <div>
-                    <h3 class="font-semibold mb-4">Company</h3>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="/privacy" class="hover:text-white">Privacy Policy</a></li>
-                        <li><a href="/terms" class="hover:text-white">Terms of Service</a></li>
+                    <h4 class="text-sm font-semibold mb-4 text-gray-300">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/privacy" class="text-sm text-gray-500 hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="/terms" class="text-sm text-gray-500 hover:text-white transition-colors">Terms of Service</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2024 CopyGum. All rights reserved.</p>
+
+            <div class="border-t border-white/5 pt-8 text-center">
+                <p class="text-gray-600 text-sm">&copy; 2025 CopyGum. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // Email-based licensing
-        function showEmailForm() {
-            document.getElementById('emailForm').classList.remove('hidden')
-            document.getElementById('emailInput').focus()
-        }
-        
-        function hideEmailForm() {
-            document.getElementById('emailForm').classList.add('hidden')
-            document.getElementById('licenseResult').classList.add('hidden')
-            document.getElementById('emailInput').value = ''
-        }
-        
-        async function generateLicense() {
-            const email = document.getElementById('emailInput').value
-            
-            if (!email || !email.includes('@')) {
-                alert('Please enter a valid email address')
-                return
+        // ——— Sticky Navbar ———
+        const navbar = document.getElementById('navbar');
+        const heroSection = document.getElementById('hero');
+
+        const navObserver = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                navbar.classList.remove('visible');
+            } else {
+                navbar.classList.add('visible');
             }
-            
+        }, { threshold: 0.1 });
+        navObserver.observe(heroSection);
+
+        // ——— Mobile Menu ———
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        // Close mobile menu on link click
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // ——— Scroll Reveal ———
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Respect transition-delay set via inline style
+                    entry.target.classList.add('active');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // ——— Hero Screenshot Parallax ———
+        const heroScreenshot = document.getElementById('heroScreenshot');
+        if (heroScreenshot && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            window.addEventListener('scroll', () => {
+                const scrolled = window.scrollY;
+                const rate = scrolled * 0.08;
+                if (scrolled < window.innerHeight) {
+                    heroScreenshot.style.transform = `translateY(${rate}px)`;
+                }
+            }, { passive: true });
+        }
+
+        // ——— Smooth Scroll ———
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // ——— License Form ———
+        function showLicenseForm() {
+            const form = document.getElementById('licenseForm');
+            form.classList.remove('hidden');
+            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => document.getElementById('emailInput').focus(), 400);
+        }
+
+        function hideLicenseForm() {
+            document.getElementById('licenseForm').classList.add('hidden');
+            document.getElementById('licenseResult').classList.add('hidden');
+            document.getElementById('emailInput').value = '';
+        }
+
+        async function generateLicense() {
+            const email = document.getElementById('emailInput').value.trim();
+            if (!email || !email.includes('@')) {
+                alert('Please enter a valid email address');
+                return;
+            }
+
+            const btn = document.getElementById('generateBtn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Generating...';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+
             try {
                 const response = await fetch('https://copy-gum.vercel.app/api/generate-license', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email })
-                })
-                
-                const result = await response.json()
-                
+                });
+
+                const result = await response.json();
+
                 if (result.success) {
-                    document.getElementById('licenseKey').textContent = result.licenseKey
-                    document.getElementById('licenseResult').classList.remove('hidden')
+                    document.getElementById('licenseKey').textContent = result.licenseKey;
+                    document.getElementById('licenseResult').classList.remove('hidden');
                 } else {
-                    alert('Error: ' + result.error)
+                    alert('Error: ' + result.error);
                 }
             } catch (error) {
-                console.error('License generation error:', error)
-                alert('Failed to generate license. Please try again.')
+                console.error('License generation error:', error);
+                alert('Failed to generate license. Please try again.');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                btn.style.opacity = '1';
             }
         }
 
-        // Copy terminal commands to clipboard
+        function copyLicenseKey() {
+            const key = document.getElementById('licenseKey').textContent;
+            navigator.clipboard.writeText(key);
+        }
+
+        // ——— Copy to Clipboard (terminal commands) ———
         function copyToClipboard(text, btn) {
             navigator.clipboard.writeText(text).then(() => {
-                const original = btn.textContent
-                btn.textContent = '✓ Copied!'
-                btn.classList.add('text-green-400')
+                const svg = btn.querySelector('svg');
+                const original = svg.outerHTML;
+                svg.outerHTML = '<svg class="w-4 h-4 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
                 setTimeout(() => {
-                    btn.textContent = original
-                    btn.classList.remove('text-green-400')
-                }, 2000)
-            })
+                    btn.querySelector('svg').outerHTML = original;
+                }, 2000);
+            });
         }
-
-        // Analytics tracking
-        function trackDownload(platform) {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'download', {
-                    'event_category': 'app',
-                    'event_label': platform
-                })
-            }
-        }
-
-        // Smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault()
-                const target = document.querySelector(this.getAttribute('href'))
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' })
-                }
-            })
-        })
     </script>
 </body>
 </html>
