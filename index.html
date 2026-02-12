@@ -43,14 +43,64 @@
 
         .gold-gradient { background: linear-gradient(135deg, #f7e479 0%, #f5d94a 50%, #f7e479 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
-        /* Animated word */
-        #animatedWord {
+        /* Flip calendar animation */
+        .flip-container {
             display: inline-block;
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            position: relative;
+            perspective: 1000px;
         }
-        #animatedWord.fade-out {
-            opacity: 0;
-            transform: translateY(-8px);
+        .flip-word {
+            display: inline-block;
+            position: relative;
+        }
+        .flip-card {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+        }
+        .flip-card-front {
+            z-index: 2;
+        }
+        .flip-card-back {
+            transform: rotateX(180deg);
+        }
+
+        /* Flip animation keyframes */
+        @keyframes flipOut {
+            0% {
+                transform: rotateX(0deg);
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: rotateX(-90deg);
+                opacity: 0;
+            }
+        }
+        @keyframes flipIn {
+            0% {
+                transform: rotateX(90deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: rotateX(0deg);
+                opacity: 1;
+            }
+        }
+        .flip-word.flip-out {
+            animation: flipOut 0.3s ease-in forwards;
+            transform-origin: center bottom;
+        }
+        .flip-word.flip-in {
+            animation: flipIn 0.3s ease-out forwards;
+            transform-origin: center top;
         }
         .gold-border-glow { border: 1px solid rgba(247,228,121,0.3); box-shadow: 0 0 30px rgba(247,228,121,0.08), inset 0 0 30px rgba(247,228,121,0.03); }
 
@@ -323,7 +373,7 @@
             <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
                 <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-6">
                     One Click.<br>
-                    <span class="gold-gradient">Instantly <span id="animatedWord">Copied</span>.</span>
+                    <span class="gold-gradient">Instantly <span class="flip-container" id="flipContainer"><span class="flip-word" id="flipWord">Copied</span></span>.</span>
                 </h1>
                 <p class="text-lg sm:text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
                     Never lose a copied item again. CopyGum captures everything you copy and lets you paste it back with a single click.
@@ -977,30 +1027,32 @@
     </footer>
 
     <script>
-        // ——— Animated Word Cycling ———
+        // ——— Flip Calendar Word Animation ———
         (function() {
-            const wordEl = document.getElementById('animatedWord');
+            const wordEl = document.getElementById('flipWord');
             if (!wordEl) return;
 
             const words = ['Copied', 'Closed'];
             let currentIndex = 0;
 
-            function cycleWord() {
-                // Fade out
-                wordEl.classList.add('fade-out');
+            function flipWord() {
+                // Flip out current word
+                wordEl.classList.remove('flip-in');
+                wordEl.classList.add('flip-out');
 
                 setTimeout(() => {
                     // Change text
                     currentIndex = (currentIndex + 1) % words.length;
                     wordEl.textContent = words[currentIndex];
 
-                    // Fade in
-                    wordEl.classList.remove('fade-out');
+                    // Flip in new word
+                    wordEl.classList.remove('flip-out');
+                    wordEl.classList.add('flip-in');
                 }, 300);
             }
 
             // Cycle every 3 seconds
-            setInterval(cycleWord, 3000);
+            setInterval(flipWord, 3000);
         })();
 
         // ——— Sticky Navbar ———
