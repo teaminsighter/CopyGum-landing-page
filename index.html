@@ -335,7 +335,7 @@
             <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
                 <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-6">
                     One Click.<br>
-                    <span class="gold-gradient">Instantly <span class="word-switcher" id="wordSwitcher">Copied</span>.</span>
+                    <span class="gold-gradient">Instantly <span class="word-switcher gold-gradient" id="wordSwitcher">Copied</span></span>
                 </h1>
                 <p class="text-lg sm:text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
                     Never lose a copied item again. CopyGum captures everything you copy and lets you paste it back with a single click.
@@ -994,7 +994,11 @@
             const wordEl = document.getElementById('wordSwitcher');
             if (!wordEl) return;
 
-            const words = ['Copied', 'Closed'];
+            // [word, duration to show in ms]
+            const words = [
+                ['Copied', 4000],  // Show "Copied" for 4 seconds
+                ['Closed', 1500]   // Show "Closed" for 1.5 seconds
+            ];
             let currentIndex = 0;
 
             function switchWord() {
@@ -1005,16 +1009,19 @@
                 setTimeout(() => {
                     // Change text
                     currentIndex = (currentIndex + 1) % words.length;
-                    wordEl.textContent = words[currentIndex];
+                    wordEl.textContent = words[currentIndex][0];
 
                     // Flip in
                     wordEl.classList.remove('flip-out');
                     wordEl.classList.add('flip-in');
+
+                    // Schedule next switch based on current word's duration
+                    setTimeout(switchWord, words[currentIndex][1]);
                 }, 300);
             }
 
-            // Cycle every 3 seconds
-            setInterval(switchWord, 3000);
+            // Start after initial "Copied" duration
+            setTimeout(switchWord, words[0][1]);
         })();
 
         // ——— Sticky Navbar ———
