@@ -42,6 +42,20 @@
         @keyframes glowPulse { 0%,100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.15); } }
 
         .gold-gradient { background: linear-gradient(135deg, #f7e479 0%, #f5d94a 50%, #f7e479 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* Animated title */
+        #animatedTitle {
+            display: inline-block;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        #animatedTitle.fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        #animatedTitle.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
         .gold-border-glow { border: 1px solid rgba(247,228,121,0.3); box-shadow: 0 0 30px rgba(247,228,121,0.08), inset 0 0 30px rgba(247,228,121,0.03); }
 
         .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
@@ -313,7 +327,7 @@
             <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
                 <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-6">
                     One Click.<br>
-                    <span class="gold-gradient">Instantly Copied.</span>
+                    <span class="gold-gradient" id="animatedTitle">Instantly Copied.</span>
                 </h1>
                 <p class="text-lg sm:text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
                     Never lose a copied item again. CopyGum captures everything you copy and lets you paste it back with a single click.
@@ -967,6 +981,34 @@
     </footer>
 
     <script>
+        // ——— Animated Title Cycling ———
+        (function() {
+            const titleEl = document.getElementById('animatedTitle');
+            if (!titleEl) return;
+
+            const titles = ['Instantly Copied.', 'Instantly Closed.'];
+            let currentIndex = 0;
+
+            function cycleTitle() {
+                // Fade out
+                titleEl.classList.add('fade-out');
+                titleEl.classList.remove('fade-in');
+
+                setTimeout(() => {
+                    // Change text
+                    currentIndex = (currentIndex + 1) % titles.length;
+                    titleEl.textContent = titles[currentIndex];
+
+                    // Fade in
+                    titleEl.classList.remove('fade-out');
+                    titleEl.classList.add('fade-in');
+                }, 400);
+            }
+
+            // Cycle every 3 seconds
+            setInterval(cycleTitle, 3000);
+        })();
+
         // ——— Sticky Navbar ———
         const navbar = document.getElementById('navbar');
         const heroSection = document.getElementById('hero');
