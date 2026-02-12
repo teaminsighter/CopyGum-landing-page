@@ -43,18 +43,14 @@
 
         .gold-gradient { background: linear-gradient(135deg, #f7e479 0%, #f5d94a 50%, #f7e479 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
-        /* Animated title */
-        #animatedTitle {
+        /* Animated word */
+        #animatedWord {
             display: inline-block;
-            transition: opacity 0.4s ease, transform 0.4s ease;
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
-        #animatedTitle.fade-out {
+        #animatedWord.fade-out {
             opacity: 0;
-            transform: translateY(-10px);
-        }
-        #animatedTitle.fade-in {
-            opacity: 1;
-            transform: translateY(0);
+            transform: translateY(-8px);
         }
         .gold-border-glow { border: 1px solid rgba(247,228,121,0.3); box-shadow: 0 0 30px rgba(247,228,121,0.08), inset 0 0 30px rgba(247,228,121,0.03); }
 
@@ -327,7 +323,7 @@
             <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
                 <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-6">
                     One Click.<br>
-                    <span class="gold-gradient" id="animatedTitle">Instantly Copied.</span>
+                    <span class="gold-gradient">Instantly <span id="animatedWord">Copied</span>.</span>
                 </h1>
                 <p class="text-lg sm:text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
                     Never lose a copied item again. CopyGum captures everything you copy and lets you paste it back with a single click.
@@ -981,32 +977,30 @@
     </footer>
 
     <script>
-        // ——— Animated Title Cycling ———
+        // ——— Animated Word Cycling ———
         (function() {
-            const titleEl = document.getElementById('animatedTitle');
-            if (!titleEl) return;
+            const wordEl = document.getElementById('animatedWord');
+            if (!wordEl) return;
 
-            const titles = ['Instantly Copied.', 'Instantly Closed.'];
+            const words = ['Copied', 'Closed'];
             let currentIndex = 0;
 
-            function cycleTitle() {
+            function cycleWord() {
                 // Fade out
-                titleEl.classList.add('fade-out');
-                titleEl.classList.remove('fade-in');
+                wordEl.classList.add('fade-out');
 
                 setTimeout(() => {
                     // Change text
-                    currentIndex = (currentIndex + 1) % titles.length;
-                    titleEl.textContent = titles[currentIndex];
+                    currentIndex = (currentIndex + 1) % words.length;
+                    wordEl.textContent = words[currentIndex];
 
                     // Fade in
-                    titleEl.classList.remove('fade-out');
-                    titleEl.classList.add('fade-in');
-                }, 400);
+                    wordEl.classList.remove('fade-out');
+                }, 300);
             }
 
             // Cycle every 3 seconds
-            setInterval(cycleTitle, 3000);
+            setInterval(cycleWord, 3000);
         })();
 
         // ——— Sticky Navbar ———
