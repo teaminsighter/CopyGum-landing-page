@@ -914,10 +914,10 @@
                         </div>
                         <h3 class="text-lg font-semibold mb-1">macOS</h3>
                         <p class="text-gray-400 text-xs mb-4">Apple Silicon (M1/M2/M3/M4)</p>
-                        <a href="https://github.com/teaminsighter/copy-gum-new/releases/download/v1.0.0/CopyGum_1.0.0_aarch64.dmg" class="btn-gold inline-block text-sm !py-2.5 !px-5">
+                        <a href="https://github.com/teaminsighter/copy-gum-new/releases/download/v1.0.1/CopyGum_1.0.1_aarch64.zip" class="btn-gold inline-block text-sm !py-2.5 !px-5">
                             <span class="flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                Download DMG
+                                Download ZIP
                             </span>
                         </a>
                     </div>
@@ -928,10 +928,10 @@
                         </div>
                         <h3 class="text-lg font-semibold mb-1">macOS</h3>
                         <p class="text-gray-400 text-xs mb-4">Intel (x64)</p>
-                        <a href="https://github.com/teaminsighter/copy-gum-new/releases/download/v1.0.0/CopyGum_1.0.0_x64.dmg" class="btn-gold inline-block text-sm !py-2.5 !px-5">
+                        <a href="https://github.com/teaminsighter/copy-gum-new/releases/download/v1.0.1/CopyGum_1.0.1_x86_64.zip" class="btn-gold inline-block text-sm !py-2.5 !px-5">
                             <span class="flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                Download DMG
+                                Download ZIP
                             </span>
                         </a>
                     </div>
@@ -943,13 +943,13 @@
                         <h3 class="text-lg font-semibold mb-1">Windows</h3>
                         <p class="text-gray-400 text-xs mb-4">64-bit (x64)</p>
                         <div class="flex gap-2 justify-center">
-                            <a href="https://github.com/teaminsighter/copy-gum-new/releases/download/v1.0.0/CopyGum_1.0.0_x64-setup.exe" class="btn-gold inline-block text-sm !py-2.5 !px-4">
+                            <a href="https://github.com/teaminsighter/copy-gum-new/releases/download/v1.0.1/CopyGum_1.0.0_x64-setup.exe" class="btn-gold inline-block text-sm !py-2.5 !px-4">
                                 <span class="flex items-center gap-1.5">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                     EXE
                                 </span>
                             </a>
-                            <a href="https://github.com/teaminsighter/copy-gum-new/releases/download/v1.0.0/CopyGum_1.0.0_x64_en-US.msi" class="btn-glass inline-block text-sm !py-2.5 !px-4">
+                            <a href="https://github.com/teaminsighter/copy-gum-new/releases/download/v1.0.1/CopyGum_1.0.0_x64_en-US.msi" class="btn-glass inline-block text-sm !py-2.5 !px-4">
                                 <span class="flex items-center gap-1.5">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                     MSI
@@ -973,34 +973,22 @@
                         </div>
                         <!-- macOS Instructions -->
                         <div id="install-macos" class="install-content p-5 space-y-4 text-sm">
-                            <div class="flex gap-3"><span class="text-brand-gold font-mono font-bold shrink-0">1.</span><span class="text-gray-300">Download the DMG file for your Mac</span></div>
+                            <div class="flex gap-3"><span class="text-brand-gold font-mono font-bold shrink-0">1.</span><span class="text-gray-300">Download the ZIP file for your Mac</span></div>
                             <div class="flex gap-3">
                                 <span class="text-brand-gold font-mono font-bold shrink-0">2.</span>
                                 <div class="flex-1">
-                                    <span class="text-gray-300">Remove the quarantine flag:</span>
+                                    <span class="text-gray-300">Unzip and remove the quarantine flag:</span>
                                     <div class="mt-2 flex items-center gap-2 bg-black/40 rounded-lg px-4 py-2.5">
-                                        <code class="text-green-400 font-mono text-xs flex-1 overflow-x-auto">xattr -cr ~/Downloads/CopyGum*.dmg</code>
-                                        <button onclick="copyToClipboard('xattr -cr ~/Downloads/CopyGum*.dmg', this)" class="text-gray-500 hover:text-brand-gold transition-colors flex-shrink-0 copy-btn" title="Copy">
+                                        <code class="text-green-400 font-mono text-xs flex-1 overflow-x-auto">xattr -cr ~/Downloads/CopyGum.app</code>
+                                        <button onclick="copyToClipboard('xattr -cr ~/Downloads/CopyGum.app', this)" class="text-gray-500 hover:text-brand-gold transition-colors flex-shrink-0 copy-btn" title="Copy">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex gap-3">
-                                <span class="text-brand-gold font-mono font-bold shrink-0">3.</span>
-                                <div class="flex-1">
-                                    <span class="text-gray-300">Open the DMG:</span>
-                                    <div class="mt-2 flex items-center gap-2 bg-black/40 rounded-lg px-4 py-2.5">
-                                        <code class="text-green-400 font-mono text-xs flex-1 overflow-x-auto">open ~/Downloads/CopyGum*.dmg</code>
-                                        <button onclick="copyToClipboard('open ~/Downloads/CopyGum*.dmg', this)" class="text-gray-500 hover:text-brand-gold transition-colors flex-shrink-0 copy-btn" title="Copy">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex gap-3"><span class="text-brand-gold font-mono font-bold shrink-0">4.</span><span class="text-gray-300">Drag <span class="text-white font-medium">CopyGum</span> to your <span class="text-white font-medium">Applications</span> folder</span></div>
-                            <div class="flex gap-3"><span class="text-brand-gold font-mono font-bold shrink-0">5.</span><span class="text-gray-300">Grant <span class="text-white font-medium">Accessibility</span> permissions in <span class="text-white font-medium">System Settings &rarr; Privacy & Security</span></span></div>
-                            <div class="flex gap-3"><span class="text-brand-gold font-mono font-bold shrink-0">6.</span><span class="text-gray-300">Press <span class="kbd text-xs">Cmd</span>+<span class="kbd text-xs">Shift</span>+<span class="kbd text-xs">V</span> to launch!</span></div>
+                            <div class="flex gap-3"><span class="text-brand-gold font-mono font-bold shrink-0">3.</span><span class="text-gray-300">Drag <span class="text-white font-medium">CopyGum.app</span> to your <span class="text-white font-medium">Applications</span> folder</span></div>
+                            <div class="flex gap-3"><span class="text-brand-gold font-mono font-bold shrink-0">4.</span><span class="text-gray-300">Grant <span class="text-white font-medium">Accessibility</span> permissions in <span class="text-white font-medium">System Settings &rarr; Privacy & Security</span></span></div>
+                            <div class="flex gap-3"><span class="text-brand-gold font-mono font-bold shrink-0">5.</span><span class="text-gray-300">Press <span class="kbd text-xs">Cmd</span>+<span class="kbd text-xs">Shift</span>+<span class="kbd text-xs">V</span> to launch!</span></div>
                         </div>
                         <!-- Windows Instructions -->
                         <div id="install-windows" class="install-content p-5 space-y-4 text-sm hidden">
